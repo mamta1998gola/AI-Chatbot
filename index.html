@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #343541;
+            color: #ECECF1;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: #202123;
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+        }
+
+        .new-chat-btn {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            cursor: pointer;
+            margin-bottom: 20px;
+            background: transparent;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .new-chat-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background-color: #343541;
+            padding: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header h1 {
+            font-size: 16px;
+            font-weight: 500;
+            color: #ECECF1;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        /* Message Styles */
+        .message {
+            padding: 24px;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .message.user {
+            background-color: #343541;
+        }
+
+        .message.bot {
+            background-color: #444654;
+        }
+
+        .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .user .avatar {
+            background-color: #585C6C;
+        }
+
+        .bot .avatar {
+            background-color: #19C37D;
+        }
+
+        .message-content {
+            flex: 1;
+            line-height: 1.6;
+            font-size: 16px;
+            color: #ECECF1;
+            max-width: 900px;
+        }
+
+        /* Markdown Styling */
+        .message-content h1,
+        .message-content h2,
+        .message-content h3,
+        .message-content h4 {
+            margin: 1em 0 0.5em;
+            color: #ECECF1;
+        }
+
+        .message-content p {
+            margin: 0.8em 0;
+        }
+
+        .message-content pre {
+            background-color: #1e1e1e;
+            border-radius: 6px;
+            padding: 12px;
+            margin: 1em 0;
+            position: relative;
+        }
+
+        .message-content pre code {
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message-content pre .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 4px;
+            color: #ECECF1;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .message-content pre:hover .copy-button {
+            opacity: 1;
+        }
+
+        .message-content ul,
+        .message-content ol {
+            margin: 0.8em 0;
+            padding-left: 2em;
+        }
+
+        .message-content li {
+            margin: 0.3em 0;
+        }
+
+        .message-content a {
+            color: #2D9CDB;
+            text-decoration: none;
+        }
+
+        .message-content a:hover {
+            text-decoration: underline;
+        }
+
+        .message-content blockquote {
+            border-left: 3px solid #4A4B53;
+            margin: 1em 0;
+            padding-left: 1em;
+            color: #9FA0A7;
+        }
+
+        .message-content table {
+            border-collapse: collapse;
+            margin: 1em 0;
+            width: 100%;
+        }
+
+        .message-content th,
+        .message-content td {
+            border: 1px solid #4A4B53;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .message-content th {
+            background-color: #2D2E3A;
+        }
+
+        /* Input Container */
+        .input-container {
+            padding: 24px;
+            position: relative;
+            max-width: 768px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .input-box {
+            position: relative;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: #40414F;
+            display: flex;
+            align-items: flex-end;
+            padding: 8px;
+        }
+
+        .formatting-toolbar {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            right: 0;
+            display: flex;
+            gap: 8px;
+            padding: 4px;
+            background-color: #2D2E3A;
+            border-radius: 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .input-box:focus-within .formatting-toolbar {
+            opacity: 1;
+        }
+
+        .format-button {
+            background: transparent;
+            border: none;
+            color: #ECECF1;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .format-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        #input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 8px;
+            color: white;
+            font-size: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+            resize: none;
+        }
+
+        #input:focus {
+            outline: none;
+        }
+
+        .send-button {
+            background-color: transparent;
+            border: none;
+            color: #ECECF1;
+            padding: 8px 12px;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .send-button:hover {
+            opacity: 1;
+        }
+
+        /* Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #565869;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #676980;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <button class="new-chat-btn">
+            <i class="fas fa-plus"></i>
+            New chat
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1>AI Assistant</h1>
+        </div>
+
+        <div class="chat-container" id="chat"></div>
+
+        <div class="input-container">
+            <div class="input-box">
+                <div class="formatting-toolbar">
+                    <button class="format-button" onclick="insertFormat('**', '**')" title="Bold">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button class="format-button" onclick="insertFormat('*', '*')" title="Italic">
+                        <i class="fas fa-italic"></i>
+                    </button>
+                    <button class="format-button" onclick="insertFormat('```\n', '\n```')" title="Code Block">
+                        <i class="fas fa-code"></i>
+                    </button>
+                    <button class="format-button" onclick="insertFormat('- ', '')" title="Bullet List">
+                        <i class="fas fa-list-ul"></i>
+                    </button>
+                    <button class="format-button" onclick="insertFormat('1. ', '')" title="Numbered List">
+                        <i class="fas fa-list-ol"></i>
+                    </button>
+                    <button class="format-button" onclick="insertFormat('> ', '')" title="Quote">
+                        <i class="fas fa-quote-right"></i>
+                    </button>
+                </div>
+                <textarea id="input" placeholder="Message AI Assistant..." rows="1"></textarea>
+                <button class="send-button" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentChatId = null;
+        const chatDiv = document.getElementById("chat");
+        const input = document.getElementById("input");
+
+        // Configure marked options
+        marked.setOptions({
+            highlight: function (code, lang) {
+                return hljs.highlightAuto(code).value;
+            },
+            breaks: true
+        });
+
+        // Auto-resize textarea
+        input.addEventListener("input", function () {
+            this.style.height = "auto";
+            this.style.height = (this.scrollHeight) + "px";
+        });
+
+        // Send message on Enter (but Shift+Enter for new line)
+        input.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function insertFormat(prefix, suffix) {
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const text = input.value;
+            const before = text.substring(0, start);
+            const selection = text.substring(start, end);
+            const after = text.substring(end);
+
+            input.value = before + prefix + selection + suffix + after;
+            input.focus();
+            input.selectionStart = start + prefix.length;
+            input.selectionEnd = end + prefix.length;
+        }
+
+        // Add this function to initialize a new chat
+        async function initializeChat() {
+            try {
+                const response = await fetch("http://127.0.0.1:8000/init_chat", {
+                    method: "POST"
+                });
+                const data = await response.json();
+                currentChatId = data.chat_id;
+            } catch (error) {
+                console.error("Error initializing chat:", error);
+            }
+        }
+
+        // Modify the sendMessage function to include chat_id
+        async function sendMessage() {
+            const userInput = input.value.trim();
+            if (!userInput) return;
+
+            input.value = "";
+            input.style.height = "auto";
+
+            // Display user message
+            appendMessage("user", userInput);
+
+            try {
+                // Make sure we have a chat ID
+                if (!currentChatId) {
+                    await initializeChat();
+                }
+
+                const response = await fetch("http://127.0.0.1:8000/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        message: userInput,
+                        chat_id: currentChatId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let botResponse = "";
+
+                // Create bot message container
+                const botMessageDiv = appendMessage("bot", "");
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    // Decode and append streaming response
+                    const chunk = decoder.decode(value);
+                    botResponse += chunk;
+
+                    // Format the response with markdown and update the message
+                    const formattedResponse = marked.parse(botResponse);
+                    botMessageDiv.querySelector('.message-content').innerHTML = formattedResponse;
+
+                    // Add copy buttons to code blocks
+                    addCopyButtons(botMessageDiv);
+
+                    // Scroll to the bottom as new content arrives
+                    chatDiv.scrollTop = chatDiv.scrollHeight;
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                appendMessage("bot", "Error: Could not connect to the AI assistant.");
+            }
+        }
+
+        function appendMessage(type, text) {
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `message ${type}`;
+
+            const avatar = document.createElement("div");
+            avatar.className = "avatar";
+            avatar.innerHTML = type === "user" ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+            const contentDiv = document.createElement("div");
+            contentDiv.className = "message-content";
+            contentDiv.innerHTML = type === "user" ? text : marked.parse(text);
+
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(contentDiv);
+            chatDiv.appendChild(messageDiv);
+
+            // Add copy buttons to code blocks if it's a bot message
+            if (type === "bot") {
+                addCopyButtons(messageDiv);
+            }
+
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+            return messageDiv;
+        }
+
+        // Helper function to add copy buttons to code blocks
+        function addCopyButtons(messageDiv) {
+            const codeBlocks = messageDiv.querySelectorAll('pre code');
+            codeBlocks.forEach(codeBlock => {
+                const pre = codeBlock.parentNode;
+                if (!pre.querySelector('.copy-button')) {
+                    const button = document.createElement('button');
+                    button.className = 'copy-button';
+                    button.textContent = 'Copy';
+                    button.addEventListener('click', async () => {
+                        try {
+                            await navigator.clipboard.writeText(codeBlock.textContent);
+                            button.textContent = 'Copied!';
+                            setTimeout(() => {
+                                button.textContent = 'Copy';
+                            }, 2000);
+                        } catch (err) {
+                            console.error('Failed to copy:', err);
+                            button.textContent = 'Failed to copy';
+                            setTimeout(() => {
+                                button.textContent = 'Copy';
+                            }, 2000);
+                        }
+                    });
+                    pre.appendChild(button);
+                }
+            });
+        }
+
+        // Initialize chat when page loads
+        document.addEventListener("DOMContentLoaded", async () => {
+            await initializeChat();
+            appendMessage("bot", "Hello! How can I assist you today?");
+        });
+
+        // Add event listener for new chat button
+        document.querySelector('.new-chat-btn').addEventListener('click', async () => {
+            chatDiv.innerHTML = '';
+            await initializeChat();
+            appendMessage("bot", "Hello! How can I assist you today?");
+        });
+    </script>
+</body>
+
+</html>
