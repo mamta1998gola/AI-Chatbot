@@ -1,6 +1,9 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+# from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse
 import google.generativeai as genai
 import asyncio
 from typing import Dict, List
@@ -9,6 +12,9 @@ from dotenv import load_dotenv
 import os
 
 app = FastAPI()
+
+# Mount static files directory for CSS, JS, images
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Load environment variables from .env file
 load_dotenv()
@@ -28,6 +34,11 @@ genai.configure(api_key=GOOGLE_API_KEY)
 
 # Initialize Gemini model
 model = genai.GenerativeModel('gemini-pro')
+
+# Route to serve HTML file
+@app.get("/", response_class=FileResponse)
+async def serve_html():
+    return FileResponse("templates/index.html")
 
 # Chat history storage
 chat_histories: Dict[str, List[dict]] = {}

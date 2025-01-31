@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <button class="new-chat-btn">
+            <i class="fas fa-plus"></i>
+            New chat
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1>AI Assistant</h1>
+        </div>
+
+        <div class="chat-container" id="chat"></div>
+
+        <div class="input-container">
+            <div class="input-box">
+                <div class="formatting-toolbar">
+                    <button class="format-button" onclick="insertFormat('**', '**')" title="Bold">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button class="format-button" onclick="insertFormat('*', '*')" title="Italic">
+                        <i class="fas fa-italic"></i>
+                    </button>
+                    <button class="format-button" onclick="insertFormat('```\n', '\n```')" title="Code Block">
+                        <i class="fas fa-code"></i>
+                    </button>
+                    <button class="format-button" onclick="insertFormat('- ', '')" title="Bullet List">
+                        <i class="fas fa-list-ul"></i>
+                    </button>
+                    <button class="format-button" onclick="insertFormat('1. ', '')" title="Numbered List">
+                        <i class="fas fa-list-ol"></i>
+                    </button>
+                    <button class="format-button" onclick="insertFormat('> ', '')" title="Quote">
+                        <i class="fas fa-quote-right"></i>
+                    </button>
+                </div>
+                <textarea id="input" placeholder="Message AI Assistant..." rows="1"></textarea>
+                <button class="send-button" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/script.js"></script>
+</body>
+
+</html>
