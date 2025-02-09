@@ -115,6 +115,40 @@ body {
     max-width: 900px;
 }
 
+/* Chat History */
+.chat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.chat-item.active {
+    background-color: #2c2c2c;
+}
+
+.chat-title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.delete-chat-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.delete-chat-btn:hover {
+    color: #ff4444;
+}
+
 /* Markdown Styling */
 .message-content h1,
 .message-content h2,
@@ -129,6 +163,7 @@ body {
 }
 
 .message-content pre {
+    overflow-x: scroll;
     background-color: #1e1e1e;
     border-radius: 6px;
     padding: 12px;
